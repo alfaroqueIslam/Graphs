@@ -21,10 +21,7 @@ class Graph:
             self.vertices[v1] = [v2]
 
     def get_neighbors(self, vertex_id):
-        """
-        Get all neighbors (edges) of a vertex.
-        """
-        pass  # TODO
+        return self.vertices[vertex_id]
 
     def bft(self, starting_vertex):
         visited, queue = set(), [starting_vertex]
@@ -37,52 +34,69 @@ class Graph:
             print(i)
 
     def dft(self, starting_vertex):
-        visited = set()
-        traversal = []
-        stack = [starting_vertex]
-        while stack:
-            vertex = stack.pop()
-            if vertex not in visited:
-                visited.add(vertex)
-                traversal.append(vertex)
-                stack.extend(reversed(self.vertices[vertex]))   # add vertex in the same order as visited
-        return traversal
-        for i in traversal:
-            print(i)
+        q = Stack()
+        visited = set()     
+		# Init:
+        q.push(starting_vertex)
+		# While queue isn't empty
+        while q.size() > 0:
+            v = q.pop()
+            if v not in visited:
+                print(v)   # "Visit" the node
+                visited.add(v)
+                for neighbor in self.get_neighbors(v):
+                    q.push(neighbor)
 
-    def dft_recursive(self, starting_vertex):
-        # visited = []
-        # if starting_vertex not in visited:
-        #     visited.append(starting_vertex)
-        #     for n in self.vertices[starting_vertex]:
-        #         print(visited)
-        #         self.dft_recursive(n)
-        #     return visited
-        pass
+
+
+    def dft_recursive(self, starting_vertex, visited=None):
+        if visited is None:
+            visited = set()
+        print(starting_vertex)
+        visited.add(starting_vertex)
+        for neighbor in self.get_neighbors(starting_vertex):
+            if neighbor not in visited:
+                self.dft_recursive(neighbor, visited)
 
     def bfs(self, starting_vertex, destination_vertex):
-        visited, queue = set(), collections.deque([starting_vertex])
-        visited.add(starting_vertex)
-
+        # maintain a queue of paths
+        queue = []
+        # push the first path into the queue
+        queue.append([starting_vertex])
         while queue:
-
-            # Dequeue a vertex from queue
-            vertex = queue.popleft()
-            print(str(vertex) + " ", end="")
-
-            # If not visited, mark it as visited, and
-            # enqueue it
-            for neighbour in self.vertices[vertex]:
-                if neighbour not in visited:
-                    visited.add(neighbour)
-                    queue.append(neighbour)
-        return visited
+            # get the first path from the queue
+            path = queue.pop(0)
+            # get the last node from the path
+            node = path[-1]
+            # path found
+            if node == destination_vertex:
+                return path
+            # enumerate all adjacent nodes, construct a new path and push it into the queue
+            for adjacent in self.vertices.get(node, []):
+                new_path = list(path)
+                new_path.append(adjacent)
+                queue.append(new_path)
+        return queue
 
     def dfs(self, starting_vertex, destination_vertex):
         pass
 
-    def dfs_recursive(self, starting_vertex, destination_vertex):
-        pass
+    def dfs_recursive(self, starting_vertex, destination_vertex, visited=None, path=None):
+        if visited is None:
+            visited = set()
+        if path is None:
+            path = [starting_vertex]
+        print(starting_vertex)
+        visited.add(starting_vertex)
+        for neighbor in self.get_neighbors(starting_vertex):
+            if neighbor not in visited:
+                new_path = path + [neighbor]
+                if neighbor == destination_vertex:
+                    return new_path
+                dfs_path = self.dfs_recursive(neighbor, destination_vertex, visited, new_path)
+                if dfs_path is not None:
+                    return dfs_path
+        return None
 
 if __name__ == '__main__':
     graph = Graph()  # Instantiate your graph
