@@ -1,3 +1,7 @@
+from collections import deque
+import random
+import math
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -38,15 +42,20 @@ class SocialGraph:
 
         The number of users must be greater than the average number of friendships.
         """
-        # Reset graph
         self.last_id = 0
         self.users = {}
         self.friendships = {}
-        # !!!! IMPLEMENT ME
-
-        # Add users
-
-        # Create friendships
+        for i in range(0, num_users):
+            self.add_user(f"User {i}")
+        possible_friendships = []
+        for user_id in self.users:
+            for friend_id in range(user_id + 1, self.last_id + 1):
+                possible_friendships.append((user_id, friend_id))
+        random.shuffle(possible_friendships)
+        x = 0
+        for i in range(0, math.floor(num_users * avg_friendships / 2)):
+            friendship = possible_friendships[i]
+            self.add_friendship(friendship[0], friendship[1])
 
     def get_all_social_paths(self, user_id):
         """
@@ -59,6 +68,22 @@ class SocialGraph:
         """
         visited = {}  # Note that this is a dictionary, not a set
         # !!!! IMPLEMENT ME
+        queue = deque()
+        visited[user_id] = [user_id]
+        for friend_id in self.friendships[user_id]:
+            queue.append((friend_id, [friend_id]))
+
+        while len(queue) > 0:
+            currNode = queue.popleft()
+            curr_friend_id = currNode[0]
+            curr_path = currNode[1]
+            if curr_friend_id not in visited:
+                visited[curr_friend_id] = curr_path
+                for new_friend_id in self.friendships[curr_friend_id]:
+                    if new_friend_id not in visited:
+                        new_path = list(curr_path) + [new_friend_id]
+                        queue.append((new_friend_id, new_path))
+
         return visited
 
 
