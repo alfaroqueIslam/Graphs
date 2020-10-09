@@ -31,6 +31,57 @@ traversal_path = []
 
 
 
+
+# Create an empty dictionary to save all the visited rooms
+visited = {}
+# Create an empty list that will save your reverse path, allowing you to backtrack when neccesary
+backtrackPath = []
+# Save all possible movement options as keys, with their opposite directions as values
+movementOptions = {'n': 's', 's': 'n', 'w': 'e', 'e': 'w'}
+# Saves the current room (Room Number) in visited as a key, with each possible exit DIRECTION as values
+visited[player.current_room.id] = player.current_room.get_exits()
+
+
+while len(visited) < len(room_graph):
+
+    # If the current room has not been visited
+    # Save it as visited, check off where you came from, and see where you can go now
+    if player.current_room.id not in visited:
+        visited[player.current_room.id] = player.current_room.get_exits()
+        previousRoom = backtrackPath[-1]
+        print("previousRoom(Checking Rooms Case): ", previousRoom)
+        print("backtrackPath: ", backtrackPath)
+        print("Currently in: ", player.current_room.id)
+        visited[player.current_room.id].remove(previousRoom)
+
+
+    # If the current room has unused exits
+    # Go through one of the exits and check it off
+    elif len(visited[player.current_room.id]) > 0:
+        nextRoom = visited[player.current_room.id][-1]
+        print("nextRoom: ", nextRoom)
+        print("backtrackPath: ", backtrackPath)
+        print("Currently in: ", player.current_room.id)
+        visited[player.current_room.id].pop()
+        traversal_path.append(nextRoom)
+        backtrackPath.append(movementOptions[nextRoom])
+        player.travel(nextRoom)
+        print("Walking to:", nextRoom)
+
+    # If there are no more exits for the current room
+    # Backtrack to the previous room
+    elif len(visited[player.current_room.id]) == 0:
+        previousRoom = backtrackPath[-1]
+        print("previousRoom(Backtracking Case): ", previousRoom)
+        print("backtrackPath: ", backtrackPath)
+        print("Currently in: ", player.current_room.id)
+        backtrackPath.pop()
+        traversal_path.append(previousRoom)
+        player.travel(previousRoom)
+        print("Walking BACK to:", previousRoom)
+
+
+
 # TRAVERSAL TEST
 visited_rooms = set()
 player.current_room = world.starting_room
